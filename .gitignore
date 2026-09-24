@@ -1,0 +1,49 @@
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+
+# Python cache & bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+.eggs/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.hypothesis/
+
+# Linting & Type Checking
+.mypy_cache/
+.ruff_cache/
+
+# Keys, credentials, environments
+.env
+.env.*
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+secrets.json
+
+# IDEs & OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Documentation build / temp
+docs/images/*.tmp
