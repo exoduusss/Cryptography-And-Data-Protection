@@ -5,6 +5,10 @@ Educational reference implementation. Not for production use.
 
 from __future__ import annotations
 
+import os
+
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+
 import secrets
 from pathlib import Path
 
