@@ -41,13 +41,13 @@
 - [x] Day 7: Documentation, Verification Gate (PASS: ruff check, ruff format, mypy, bandit, pytest, demo), local git merge & tag `v0.1.0-week1`
 
 ### Week 2: E2E Encrypted Collaboration Tool with Double Ratchet
-- [ ] Day 1: Protocol research (Signal Double Ratchet, X3DH, RFC 5869, RFC 7748/8032)
-- [ ] Day 2: Protocol architecture, state machine diagrams, threat model
-- [ ] Day 3: Cryptographic state machine (X25519 DH ratchet, symmetric KDF chains, AEAD encryption)
-- [ ] Day 4: Out-of-order skipped keys, state serialization & scrypt/PBKDF2 encrypted storage
-- [ ] Day 5: FastAPI/WebSocket untrusted relay server, Python client & local web UI
-- [ ] Day 6: Security test suite (tamper detection, replay rejection, forward secrecy, post-compromise recovery)
-- [ ] Day 7: Documentation, Verification Gate, local git merge & tag `v0.2.0-week2`
+- [x] Day 1: Protocol research (Signal Double Ratchet, X3DH, RFC 5869, RFC 7748/8032)
+- [x] Day 2: Protocol architecture, state machine diagrams, threat model (`protocol.md`, `architecture.md`, `threat_model.md`)
+- [x] Day 3: Cryptographic state machine (X25519 DH ratchet, symmetric KDF chains, AEAD ChaCha20-Poly1305 encryption)
+- [x] Day 4: Out-of-order skipped keys, state serialization & PBKDF2/Scrypt encrypted storage
+- [x] Day 5: FastAPI/WebSocket untrusted relay server, Python client & local web UI
+- [x] Day 6: Security test suite (all 7 invariants: server confidentiality, distinct keys, tamper detection, replay rejection, bounded out-of-order, forward secrecy, post-compromise recovery; 29 tests passing, 96.77% coverage)
+- [x] Day 7: Documentation, Verification Gate (PASS: ruff, mypy, bandit, pytest, demo), local git merge & tag `v0.2.0-week2`
 
 ### Week 3: Homomorphic Paillier Cryptosystem for Secure Auctions
 - [ ] Day 1: Mathematical research (composite degree residuosity, Paillier 1999)
@@ -62,12 +62,12 @@
 
 ## Gate Results
 - **Preflight Gate**: PASS
-- **Week 1 Gate**: PASS (ruff 0 errors, ruff-format clean, mypy strict 0 issues, bandit 0 issues, pytest 39/39 passed, coverage 94.12%, demo verified)
-- **Week 2 Gate**: Pending
+- **Week 1 Gate**: PASS (39 tests, 94.12% coverage, tag `v0.1.0-week1`)
+- **Week 2 Gate**: PASS (29 tests, 96.77% coverage, demo verified, tag `v0.2.0-week2`)
 - **Week 3 Gate**: Pending
 - **Final Gate & Fresh-Clone Check**: Pending
 
 ---
 
 ## Next Task
-Commit Week 1 to `feat/w1-feistel-core`, merge into `develop`, merge `develop` into `main`, tag `v0.1.0-week1`, then immediately start Week 2 Day 1 on `feat/w2-double-ratchet`.
+Commit Week 2 to `feat/w2-double-ratchet`, merge into `develop`, merge `develop` into `main`, tag `v0.2.0-week2`, then immediately begin Week 3 on `feat/w3-paillier-auction`.

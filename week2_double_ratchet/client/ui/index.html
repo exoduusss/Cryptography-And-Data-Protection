@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E2EE Collaboration Suite | Double Ratchet</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: rgba(22, 27, 34, 0.85);
+      --border: #30363d;
+      --accent: #58a6ff;
+      --accent-green: #2ea043;
+      --accent-purple: #bc8cff;
+      --text: #c9d1d9;
+      --text-bright: #f0f6fc;
+      --text-muted: #8b949e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      background: rgba(13, 17, 23, 0.95);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(10px);
+    }
+    .badge {
+      background: rgba(88, 166, 255, 0.15);
+      color: var(--accent);
+      padding: 0.25rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid rgba(88, 166, 255, 0.3);
+    }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr 340px;
+      gap: 1rem;
+      padding: 1rem 2rem;
+      flex: 1;
+      overflow: hidden;
+    }
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-bright);
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .panel-content {
+      padding: 1rem;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .chat-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .msg-bubble {
+      max-width: 80%;
+      padding: 0.6rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    .msg-mine {
+      align-self: flex-end;
+      background: #1f6feb;
+      color: #fff;
+    }
+    .msg-theirs {
+      align-self: flex-start;
+      background: #21262d;
+      border: 1px solid var(--border);
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid rgba(48, 54, 61, 0.5);
+      font-size: 0.85rem;
+    }
+    .stat-label { color: var(--text-muted); }
+    .stat-value { font-family: monospace; color: var(--accent-green); }
+    .note-editor {
+      width: 100%;
+      height: 140px;
+      background: #161b22;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 0.5rem;
+      font-family: inherit;
+      resize: vertical;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1 style="font-size: 1.25rem; color: var(--text-bright);">Signal Double Ratchet & X3DH Collaboration Client</h1>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">Untrusted WebSocket Relay • Zero Server-Side Plaintext</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <span class="badge" id="client-user-badge">User: Initializing...</span>
+      <span class="badge" style="color: var(--accent-green); border-color: rgba(46, 160, 67, 0.4);">E2EE Active</span>
+    </div>
+  </header>
+
+  <div class="main-grid">
+    <!-- Panel 1: Session & Ratchet State Inspector -->
+    <div class="panel">
+      <div class="panel-header">Ratchet State Inspector</div>
+      <div class="panel-content" id="ratchet-stats">
+        <div class="stat-row">
+          <span class="stat-label">Active Peer:</span>
+          <span class="stat-value" id="stat-peer">None</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Sending (Ns):</span>
+          <span class="stat-value" id="stat-ns">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Receiving (Nr):</span>
+          <span class="stat-value" id="stat-nr">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Previous Chain (Pn):</span>
+          <span class="stat-value" id="stat-pn">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Skipped Keys Cached:</span>
+          <span class="stat-value" id="stat-skipped">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Root Key Fingerprint:</span>
+          <span class="stat-value" id="stat-rk">N/A</span>
+        </div>
+        <div class="stat-row" style="margin-top: 0.5rem;">
+          <span class="stat-label">Safety Number:</span>
+          <span class="stat-value" style="color: var(--accent-purple);" id="stat-safety">N/A</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Encrypted 1:1 Chat -->
+    <div class="panel">
+      <div class="panel-header">1:1 Encrypted Chat Stream</div>
+      <div class="panel-content">
+        <div class="chat-messages" id="chat-stream">
+          <div class="msg-bubble msg-theirs">
+            <small style="color: var(--text-muted); display: block;">System</small>
+            End-to-end encrypted session initialized using X3DH and ChaCha20-Poly1305.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Collaborative Notes -->
+    <div class="panel">
+      <div class="panel-header">Encrypted Shared Notes</div>
+      <div class="panel-content">
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Collaborative document updates transmitted as encrypted ratchet messages.</p>
+        <div id="notes-container" style="margin-top: 1rem;">
+          <h4 id="note-title" style="color: var(--text-bright);">Project Notes</h4>
+          <textarea class="note-editor" id="note-body" placeholder="Encrypted notes sync across peers..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function refreshStatus() {
+      try {
+        const res = await fetch("/api/local/status");
+        if (!res.ok) return;
+        const data = await res.json();
+        document.getElementById("client-user-badge").textContent = "User: " + data.user_id;
+
+        const peers = Object.keys(data.active_sessions);
+        if (peers.length > 0) {
+          const peer = peers[0];
+          const info = data.active_sessions[peer];
+          document.getElementById("stat-peer").textContent = peer;
+          document.getElementById("stat-ns").textContent = info.ns;
+          document.getElementById("stat-nr").textContent = info.nr;
+          document.getElementById("stat-pn").textContent = info.pn;
+          document.getElementById("stat-skipped").textContent = info.skipped_count;
+          document.getElementById("stat-rk").textContent = info.root_key_fingerprint;
+          document.getElementById("stat-safety").textContent = info.safety_number;
+        }
+
+        // Render chat
+        const chatContainer = document.getElementById("chat-stream");
+        if (data.chat_history && data.chat_history.length > 0) {
+          chatContainer.innerHTML = "";
+          data.chat_history.forEach(msg => {
+            const div = document.createElement("div");
+            div.className = "msg-bubble " + (msg.sender === data.user_id ? "msg-mine" : "msg-theirs");
+            div.textContent = msg.text;
+            chatContainer.appendChild(div);
+          });
+        }
+
+        // Render notes
+        if (data.shared_notes) {
+          for (const [title, body] of Object.entries(data.shared_notes)) {
+            document.getElementById("note-title").textContent = title;
+            document.getElementById("note-body").value = body;
+          }
+        }
+      } catch (err) {
+        console.error("Status refresh error:", err);
+      }
+    }
+    setInterval(refreshStatus, 2000);
+    refreshStatus();
+  </script>
+</body>
+</html>
